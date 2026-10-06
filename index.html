@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Math 3D Rush</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;font-family:Arial;background:#101827;color:white}
+#game{height:100vh;position:relative;overflow:hidden;background:linear-gradient(#3180c4,#b9e5ff 48%,#333 49%,#111)}
+#road{position:absolute;left:50%;bottom:-10%;width:120%;height:70%;transform:translateX(-50%) perspective(500px) rotateX(35deg);background:#292929;border-left:8px solid #aaa;border-right:8px solid #aaa}
+#hud{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;z-index:5}
+.stat{background:#0009;padding:10px 14px;border-radius:12px;font-weight:bold}
+#questionBox{position:absolute;top:75px;left:50%;transform:translateX(-50%);z-index:5;text-align:center;background:#0009;padding:15px 25px;border-radius:18px}
+#question{font-size:30px;font-weight:bold}
+#message{margin-top:5px}
+#player{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:55px;height:80px;z-index:4;transition:left .15s}
+.head{width:32px;height:32px;border-radius:50%;background:#ffc899;margin:auto}
+.body{width:42px;height:45px;background:#168cff;border-radius:10px;margin:auto}
+.leg{position:absolute;bottom:0;width:12px;height:25px;background:#111}
+.left{left:10px}.right{right:10px}
+#answers{position:absolute;bottom:29%;left:0;right:0;display:flex;justify-content:center;gap:10px;z-index:6}
+.answer{padding:13px 22px;border:0;border-radius:14px;background:#111c;color:white;font-size:22px;font-weight:bold}
+#controls{position:absolute;bottom:10px;left:0;right:0;text-align:center;z-index:7}
+.control{width:70px;height:50px;margin:0 12px;border:0;border-radius:14px;background:#ffffff33;color:white;font-size:25px}
+#start{position:absolute;inset:0;background:#07111eee;z-index:20;display:flex;align-items:center;justify-content:center;text-align:center}
+.card{background:#18253b;padding:30px;border-radius:25px;width:90%;max-width:420px}
+h1{font-size:38px}
+#startBtn{padding:15px 30px;border:0;border-radius:14px;background:#168cff;color:white;font-size:20px;font-weight:bold}
+</style>
+</head>
+
+<body>
+<div id="game">
+
+<div id="road"></div>
+
+<div id="hud">
+<div class="stat">🏆 <span id="score">0</span></div>
+<div class="stat">🪙 <span id="coins">0</span></div>
+<div class="stat">❤️ <span id="lives">3</span></div>
+</div>
+
+<div id="questionBox">
+<div id="question">Ready?</div>
+<div id="message"></div>
+</div>
+
+<div id="player">
+<div class="head"></div>
+<div class="body"></div>
+<div class="leg left"></div>
+<div class="leg right"></div>
+</div>
+
+<div id="answers"></div>
+
+<div id="controls">
+<button class="control" id="left">◀</button>
+<button class="control" id="right">▶</button>
+</div>
+
+<div id="start">
+<div class="card">
+<h1>🏃 Math 3D Rush</h1>
+<p>Answer the math questions and survive the rush!</p>
+<button id="startBtn">START GAME</button>
+</div>
+</div>
+
+</div>
+
+<script>
+let score=0,coins=0,lives=3;
+let answer=0;
+let lane=1;
+let playing=false;
+
+const q=document.getElementById("question");
+const msg=document.getElementById("message");
+const answers=document.getElementById("answers");
+const player=document.getElementById("player");
+
+function move(){
+player.style.left=["30%","50%","70%"][lane];
+}
+
+function question(){
+let a=Math.floor(Math.random()*10)+1;
+let b=Math.floor(Math.random()*10)+1;
+
+answer=a+b;
+q.textContent=a+" + "+b+" = ?";
+
+let options=[
+answer,
+answer+2,
+Math.max(1,answer-2)
+];
+
+options.sort(()=>Math.random()-.5);
+
+answers.innerHTML="";
+
+options.forEach(x=>{
+let button=document.createElement("button");
+button.className="answer";
+button.textContent=x;
+
+button.onclick=()=>{
+if(x===answer){
+score+=10;
+coins++;
+msg.textContent="✅ Correct!";
+}else{
+lives--;
+msg.textContent="❌ Wrong!";
+}
+
+document.getElementById("score").textContent=score;
+document.getElementById("coins").textContent=coins;
+document.getElementById("lives").textContent=lives;
+
+if(lives<=0){
+playing=false;
+q.textContent="GAME OVER";
+msg.textContent="Score: "+score;
+document.getElementById("start").style.display="flex";
+document.getElementById("startBtn").textContent="PLAY AGAIN";
+}else{
+question();
+}
+};
+
+answers.appendChild(button);
+});
+}
+
+function startGame(){
+score=0;
+coins=0;
+lives=3;
+lane=1;
+playing=true;
+
+document.getElementById("score").textContent=0;
+document.getElementById("coins").textContent=0;
+document.getElementById("lives").textContent=3;
+
+document.getElementById("start").style.display="none";
+
+move();
+question();
+}
+
+document.getElementById("startBtn").onclick=startGame;
+
+document.getElementById("left").onclick=()=>{
+if(playing){
+lane=Math.max(0,lane-1);
+move();
+}
+};
+
+document.getElementById("right").onclick=()=>{
+if(playing){
+lane=Math.min(2,lane+1);
+move();
+}
+};
+
+document.addEventListener("keydown",e=>{
+if(e.key==="ArrowLeft")document.getElementById("left").click();
+if(e.key==="ArrowRight")document.getElementById("right").click();
+});
+</script>
+
+</body>
+</html>
